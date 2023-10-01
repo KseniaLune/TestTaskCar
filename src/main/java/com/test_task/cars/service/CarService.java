@@ -1,29 +1,31 @@
 package com.test_task.cars.service;
 
 import com.test_task.cars.domain.Car;
-import com.test_task.cars.entity.CarEntity;
-import com.test_task.cars.controller.dto.CarDto;
 import com.test_task.cars.controller.dto.CarUpdate;
-import com.test_task.cars.model.ApplicationResponse;
-import com.test_task.cars.model.StatisticResponse;
+import com.test_task.cars.model.CarStatistic;
+import com.test_task.cars.model.SortOf;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CarService {
-    List<Car> getAllCars(String brand,
-                         String color,
-                         int yearOfManufacture,
-                         String country,
-                         int mileageFrom,
-                         int mileageTo,
-                         int trunkVolumeFrom,
-                         int trunkVolumeTo);
+    List<Car> getAllCars(
+        String brand,
+        String color,
+        int yearOfManufacture,
+        String country,
+        int mileageFrom,
+        int mileageTo,
+        int trunkVolumeFrom,
+        int trunkVolumeTo,
+        Optional<SortOf> sortParam
+    );
 
-    ApplicationResponse addCar(Car car);
+    void addCar(Car car);
 
     Car update(String numberPlate, CarUpdate carUp);
 
-    ApplicationResponse deleteCar(String numberPlate);
+    void deleteCar(String numberPlate);
 
-    StatisticResponse statistic();
+    CarStatistic statistic();
 }

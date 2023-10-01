@@ -4,9 +4,10 @@ import com.test_task.cars.domain.Car;
 import com.test_task.cars.controller.dto.CarDto;
 import com.test_task.cars.controller.dto.CarUpdate;
 import com.test_task.cars.controller.dto.CarMapper;
+import com.test_task.cars.model.SortOf;
 import com.test_task.cars.service.CarService;
-import com.test_task.cars.model.ApplicationResponse;
-import com.test_task.cars.model.StatisticResponse;
+import com.test_task.cars.model.AppError;
+import com.test_task.cars.model.CarStatistic;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/car")
@@ -32,8 +34,9 @@ public class ApiController {
         @RequestParam(required = false, name = "mileage_from") Integer mileageFrom,
         @RequestParam(required = false, name = "mileage_to") Integer mileageTo,
         @RequestParam(required = false, name = "trunk_volume_from") Integer trunkVolumeFrom,
-        @RequestParam(required = false, name = "trunk_volume_to") Integer trunkVolumeTo) {
-
+        @RequestParam(required = false, name = "trunk_volume_to") Integer trunkVolumeTo,
+        @RequestParam(required = false, name = "sort_by") String sortParam
+    ) {
         int year = 0, mileageF = 0, mileageT = 0, trunkVolF = 0, trunkVolT = 0;
 
         if (yearOfManufacture != null) {
@@ -52,7 +55,18 @@ public class ApiController {
             trunkVolT = trunkVolumeTo;
         }
 
-        List<Car> allCars = service.getAllCars(brand, color, year, country, mileageF, mileageT, trunkVolF, trunkVolT);
+        Optional<SortOf> sort;
+        if (sortParam != null) {
+            SortOf sortOf = SortOf.from(sortParam);
+            if (sortOf == null) {
+                throw new IllegalArgumentException("You can't sort by " + sortParam);
+            }
+
+            sort = Optional.of(sortOf);
+        } else {
+            sort = Optional.empty();
+        }
+        List<Car> allCars = service.getAllCars(brand, color, year, country, mileageF, mileageT, trunkVolF, trunkVolT, sort);
         return ResponseEntity
             .ok()
             .contentType(MediaType.APPLICATION_JSON)
@@ -60,15 +74,19 @@ public class ApiController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<ApplicationResponse> addCar(@Valid @RequestBody CarDto dto) {
-        Car car = carMapper.toCar(dto);
+    public ResponseEntity<AppError> addCar(@Valid @RequestBody CarDto dto) {
+       service.addCar(carMapper.toCar(dto));
         return ResponseEntity
             .ok()
             .contentType(MediaType.APPLICATION_JSON)
-            .body(service.addCar(car));
+            .build();
     }
-    @PutMapping("/{id}")
-    public ResponseEntity<CarDto> updateCar(@PathVariable("id") String numberPlate, @Valid @RequestBody CarUpdate carUp) {
+
+    @PutMapping("/{number_plate}")
+    public ResponseEntity<CarDto> updateCar(
+        @PathVariable("number_plate") String numberPlate,
+        @Valid @RequestBody CarUpdate carUp
+    ) {
         Car newCar = service.update(numberPlate, carUp);
         return ResponseEntity
             .ok()
@@ -76,20 +94,20 @@ public class ApiController {
             .body(carMapper.toDto(newCar));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApplicationResponse> deleteCar(@PathVariable("id") String numberPlate) {
+    @DeleteMapping("/{number_plate}")
+    public ResponseEntity<AppError> deleteCar(@PathVariable("number_plate") String numberPlate) {
+        service.deleteCar(numberPlate);
         return ResponseEntity
             .status(HttpStatus.OK)
             .contentType(MediaType.APPLICATION_JSON)
-            .body(service.deleteCar(numberPlate));
+            .build();
     }
 
     @GetMapping("/statistic")
-    public ResponseEntity<StatisticResponse> getStatistic() {
+    public ResponseEntity<CarStatistic> getStatistic() {
         return ResponseEntity
             .ok()
             .contentType(MediaType.APPLICATION_JSON)
             .body(service.statistic());
     }
-
 }

@@ -2,11 +2,9 @@ package com.test_task.cars.service;
 
 import com.test_task.cars.domain.Car;
 import com.test_task.cars.domain.CarDao;
-import com.test_task.cars.entity.CarEntity;
 import com.test_task.cars.controller.dto.CarUpdate;
-import com.test_task.cars.controller.dto.CarMapper;
-import com.test_task.cars.model.ApplicationResponse;
-import com.test_task.cars.model.StatisticResponse;
+import com.test_task.cars.model.CarStatistic;
+import com.test_task.cars.model.SortOf;
 import com.test_task.cars.repo.CarRepoJpa;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,18 +17,20 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class CarServiceImpl implements CarService{
+public class CarServiceImpl implements CarService {
     private final CarDao dao;
     private final CarRepoJpa repoJpa;
 
     @Override
-    public List<Car> getAllCars(String brand, String color, int yearOfManufacture, String country,
-                                      int mileageFrom, int mileageTo,
-                                      int trunkVolumeFrom, int trunkVolumeTo) {
-
-        List<Car> carsWithFilter = dao.getCarsWithFilter(brand, color, yearOfManufacture, country,
-            mileageFrom, mileageTo, trunkVolumeFrom, trunkVolumeTo);
-        return carsWithFilter;
+    public List<Car> getAllCars(
+        String brand, String color, int yearOfManufacture, String country,
+        int mileageFrom, int mileageTo,
+        int trunkVolumeFrom, int trunkVolumeTo, Optional<SortOf> sortParam
+    ) {
+        return dao.getCarsWithFilter(
+            brand, color, yearOfManufacture, country,
+            mileageFrom, mileageTo, trunkVolumeFrom, trunkVolumeTo, sortParam
+        );
     }
 
     @Override
@@ -39,43 +39,32 @@ public class CarServiceImpl implements CarService{
         if (opt.isEmpty()) {
             throw new IllegalArgumentException("Car with number plate" + numberPlate + "doesn't exist!");
         }
-        Car car = dao.updateCar(numberPlate, carUp);
-        return car;
+
+        return dao.updateCar(numberPlate, carUp);
     }
 
-
     @Override
-    public ApplicationResponse addCar(Car car) {
+    public void addCar(Car car) {
         Optional<Car> opt = dao.getCarBy(car.getNumberPlate());
         if (opt.isPresent()) {
             throw new IllegalArgumentException("Car is present, please add new car!");
         }
-        try {
-            dao.save(car);
-        } catch (Exception e) {
-            //TODO: log add e.getMessage
-            return new ApplicationResponse("Internal error, please try again!", null);
-        }
-        return new ApplicationResponse("The car was added", null);
+
+        dao.save(car);
     }
 
     @Override
-    public ApplicationResponse deleteCar(String numberPlate) {
+    public void deleteCar(String numberPlate) {
         Optional<Car> opt = dao.getCarBy(numberPlate);
         if (opt.isEmpty()) {
             throw new IllegalArgumentException("Car doesn't exist");
         }
-        try {
-            dao.deleteBy(numberPlate);
-        } catch (Exception e) {
-            //TODO: log add e.getMessage
-            return new ApplicationResponse("Internal error, please try again!", null);
-        }
-        return new ApplicationResponse("The car was deleted", null);
+
+        dao.deleteBy(numberPlate);
     }
 
     @Override
-    public StatisticResponse statistic() {
+    public CarStatistic statistic() {
         HashMap<String, Integer> mapBrands = new HashMap<>();
 
         List<String> listBrands = repoJpa.countCarsByBrands();
@@ -100,12 +89,11 @@ public class CarServiceImpl implements CarService{
 
         int cars = repoJpa.countAllCars();
 
-        return StatisticResponse.builder()
+        return CarStatistic.builder()
             .numberOfCars(cars)
             .byBrand(mapBrands)
             .byCountry(mapCountry)
             .byYear(mapYear)
             .build();
     }
-
 }
