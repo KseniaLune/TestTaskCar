@@ -28,9 +28,9 @@ services:
 
   flyway:
     image: flyway/flyway:latest
-    container_name: car_magration
+    container_name: car_migration
     volumes:
-      - ./flyway/db/migration:/flyway/sql
+      - ./src/main/resources/db/migration:/flyway/sql
     command: -url=jdbc:postgresql://db:5432/${POSTGRES_DB} -user=${POSTGRES_USERNAME} -password=${POSTGRES_PASSWORD} -connectRetries=60 migrate
     depends_on:
       - db
