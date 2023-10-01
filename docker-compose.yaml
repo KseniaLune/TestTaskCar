@@ -1,13 +1,36 @@
 version: '3'
 
-
 services:
+  app:
+    image: app:0.0.1
+    build: # TODO create image
+      context: .
+      dockerfile: Dockerfile
+    container_name: car_app
+    depends_on:
+      - db
+    ports:
+      - 8080:8080
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+
   db:
     image: postgres:latest
-    container_name: test_car_db
+    container_name: car_db
     environment:
-      - POSTGRES_DB=car
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
-      - '8081:5432'
+      - '5432:5432'
+
+  flyway:
+    image: flyway/flyway:latest
+    container_name: car_magration
+    volumes:
+      - ./flyway/db/migration:/flyway/sql
+    command: -url=jdbc:postgresql://db:5432/${POSTGRES_DB} -user=${POSTGRES_USERNAME} -password=${POSTGRES_PASSWORD} -connectRetries=60 migrate
+    depends_on:
+      - db
