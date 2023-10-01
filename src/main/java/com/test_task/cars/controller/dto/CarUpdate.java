@@ -1,8 +1,8 @@
 package com.test_task.cars.controller.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.test_task.cars.Const;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
