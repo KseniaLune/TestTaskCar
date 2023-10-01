@@ -1,6 +1,5 @@
 package com.test_task.cars.domain;
 
-import com.test_task.cars.controller.dto.CarDto;
 import com.test_task.cars.entity.CarEntity;
 import org.springframework.stereotype.Component;
 
@@ -32,17 +31,10 @@ public class CarEntityMapper {
             .trunkVolume(car.getTrunkVolume())
             .build();
     }
-    public List<Car> toCar(List<CarEntity> carEntities) {
+
+    public List<Car> toCarList(List<CarEntity> carEntities) {
         return carEntities.stream()
-            .map(e -> Car.builder()
-                .numberPlate(e.getNumberPlate())
-                .brand(e.getBrand())
-                .color(e.getColor())
-                .yearOfManufacture(e.getYearOfManufacture())
-                .country(e.getCountry())
-                .mileage(e.getMileage())
-                .trunkVolume(e.getTrunkVolume())
-                .build())
+            .map(this::toCar)
             .collect(Collectors.toList());
     }
 }

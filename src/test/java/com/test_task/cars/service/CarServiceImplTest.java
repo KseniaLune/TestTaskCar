@@ -3,10 +3,9 @@ package com.test_task.cars.service;
 import com.test_task.cars.controller.dto.CarUpdate;
 import com.test_task.cars.domain.Car;
 import com.test_task.cars.domain.CarDao;
-import com.test_task.cars.model.ApplicationResponse;
-import com.test_task.cars.model.StatisticResponse;
+import com.test_task.cars.model.AppError;
+import com.test_task.cars.model.CarStatistic;
 import com.test_task.cars.repo.CarRepoJpa;
-import org.hibernate.sql.Update;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -71,15 +70,12 @@ class CarServiceImplTest {
         Car car = Car.builder()
             .numberPlate("A")
             .build();
-        ApplicationResponse response = new ApplicationResponse("The car was added", null);
+        AppError response = new AppError("The car was added");
 
         when(dao.getCarBy(car.getNumberPlate())).thenReturn(Optional.empty());
         doNothing().when(dao).save(car);
 
-        ApplicationResponse actual = service.addCar(car);
-
-        assertNotNull(actual);
-        assertEquals(response.getResult(), actual.getResult());
+        service.addCar(car);
 
         verify(dao, times(1)).getCarBy(car.getNumberPlate());
         verify(dao, times(1)).save(car);
@@ -103,15 +99,12 @@ class CarServiceImplTest {
         Car car = Car.builder()
             .numberPlate("A")
             .build();
-        ApplicationResponse response = new ApplicationResponse("The car was deleted", null);
+        AppError response = new AppError("The car was deleted");
 
         when(dao.getCarBy(car.getNumberPlate())).thenReturn(Optional.of(car));
         doNothing().when(dao).deleteBy(car.getNumberPlate());
 
-        ApplicationResponse actual = service.deleteCar(car.getNumberPlate());
-
-        assertNotNull(actual);
-        assertEquals(response.getResult(), actual.getResult());
+        service.deleteCar(car.getNumberPlate());
 
         verify(dao, times(1)).getCarBy(car.getNumberPlate());
         verify(dao, times(1)).deleteBy(car.getNumberPlate());
@@ -144,7 +137,7 @@ class CarServiceImplTest {
         mapYear.put(1995, 3);
         mapYear.put(2007, 1);
 
-        StatisticResponse response = StatisticResponse.builder()
+        CarStatistic response = CarStatistic.builder()
             .numberOfCars(4)
             .byBrand(mapBrands)
             .byCountry(mapCountry)
@@ -156,7 +149,7 @@ class CarServiceImplTest {
         when(repoJpa.countCarsByYear()).thenReturn(listYear);
         when(repoJpa.countAllCars()).thenReturn(4);
 
-        StatisticResponse actual = service.statistic();
+        CarStatistic actual = service.statistic();
 
         assertNotNull(actual);
         assertEquals(response, actual);
@@ -173,7 +166,7 @@ class CarServiceImplTest {
         HashMap<String, Integer> mapCountry = new HashMap<>();
         HashMap<Integer, Integer> mapYear = new HashMap<>();
 
-        StatisticResponse response = StatisticResponse.builder()
+        CarStatistic response = CarStatistic.builder()
             .numberOfCars(0)
             .byBrand(mapBrands)
             .byCountry(mapCountry)
@@ -185,7 +178,7 @@ class CarServiceImplTest {
         when(repoJpa.countCarsByYear()).thenReturn(new ArrayList<>());
         when(repoJpa.countAllCars()).thenReturn(0);
 
-        StatisticResponse actual = service.statistic();
+        CarStatistic actual = service.statistic();
 
         assertNotNull(actual);
         assertEquals(response, actual);

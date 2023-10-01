@@ -15,6 +15,10 @@ configurations {
 	compileOnly {
 		extendsFrom(configurations.annotationProcessor.get())
 	}
+
+	all {
+		exclude(group = "org.springframework.boot", module = "spring-boot-starter-logging")
+	}
 }
 
 repositories {
@@ -24,12 +28,15 @@ repositories {
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
-//	implementation("org.springframework.boot:spring-boot-starter-data-redis")
-//	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.apache.logging.log4j:log4j-spring-boot")
+	implementation("org.springframework.boot:spring-boot-starter-log4j2")
 	implementation("org.flywaydb:flyway-core")
+
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("org.postgresql:postgresql")
+
+
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.boot:spring-boot-testcontainers")
