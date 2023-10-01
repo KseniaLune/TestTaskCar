@@ -16,20 +16,23 @@ import java.util.List;
 @Slf4j
 public class ControllerAdvice {
 
+    private static final String PATTERN = "Exception: %s, message: %s, request: %s";
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public AppError handlerMethodArgumentNotValid(MethodArgumentNotValidException ex, WebRequest request) {
-        String logMessage = String.format("Exception: %s, message: %s, request: %s",
+        String logMessage = String.format(PATTERN,
             ex.getClass().getName(), ex.getMessage(), request.getDescription(false));
         log.error(logMessage);
 
+        Class<? extends MethodArgumentNotValidException> aClass = ex.getClass();
         return new AppError("Validation failed.");
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public AppError handlerIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
-        String logMessage = String.format("Exception: %s, message: %s, request: %s",
+        String logMessage = String.format(PATTERN,
             ex.getClass().getName(),ex.getMessage(), request.getDescription(false));
         log.error(logMessage);
 
@@ -39,7 +42,7 @@ public class ControllerAdvice {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public AppError handleException(Exception ex, WebRequest request) {
-        String logMessage = String.format("Exception: %s, message: %s, request: %s",
+        String logMessage = String.format(PATTERN,
             ex.getClass().getName(), ex.getMessage(), request.getDescription(false));
         log.error(logMessage);
 

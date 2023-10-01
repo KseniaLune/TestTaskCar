@@ -3,6 +3,11 @@
 REST API.
 Data base - PostgresSQL
 
+### Launch
+```bash
+# docker compose up
+```
+
 ### Layers
 Controller - HTTP endpoints/mapping</br>
 Service - Domain logic</br>
@@ -36,19 +41,18 @@ Input:
     "country":"Russia",
     "trunk_volume":"100",
     "mileage":"1234567"
-    }
+}
 ```
-
-</br>
 
 ***PUT /api/v1/car/{number_plate}:*** </br>
 Update car. Use te number_plate of car in path.</br>
 Input:
 
-```   {
+```   
+{
     "color":"White",
     "mileage":"1234567"
-    }
+}
 ```
 
 

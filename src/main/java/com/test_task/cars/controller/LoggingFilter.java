@@ -14,6 +14,8 @@ import java.io.IOException;
 @Slf4j
 public class LoggingFilter extends OncePerRequestFilter {
 
+    private static final String PATTERN = "request method: %s, request URI: %s, response status: %d, request processing time: %d ms";
+
     @Override
     protected void doFilterInternal(
         HttpServletRequest request,
@@ -26,7 +28,7 @@ public class LoggingFilter extends OncePerRequestFilter {
 
         long duration = System.currentTimeMillis() - startTime;
         String logMessage = String.format(
-            "request method: %s, request URI: %s, response status: %d, request processing time: %d ms",
+            PATTERN,
             request.getMethod(), request.getRequestURI(), response.getStatus(), duration
         );
         log.info(logMessage);

@@ -31,7 +31,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.apache.logging.log4j:log4j-spring-boot")
 	implementation("org.springframework.boot:spring-boot-starter-log4j2")
-//	implementation("org.flywaydb:flyway-core")
+	implementation("org.flywaydb:flyway-core")
 
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("org.postgresql:postgresql")
